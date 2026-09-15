@@ -54,17 +54,16 @@ class StorageManager:
 
     def is_user_exist(self, username: str) -> bool:
         self.connection.execute(
-            'SELECT username FROM users WHERE username = ?', (username,)
+            'SELECT username FROM accounts WHERE username = ?', (username,)
         )
         return self.connection.fetchone() is not None
 
     def get_user_information(self, username) -> AccountInfo:
         self.connection.execute(
-            'SELECT username, balance, locked, account_type FROM users WHERE username = ?',
+            'SELECT username, balance, locked, account_type FROM accounts WHERE username = ?',
             (username,)
         )
         row = self.connection.fetchone()
-        print(f"debugging {row}")
         return AccountInfo(
             username=row[0],
             balance=row[1],
@@ -76,7 +75,7 @@ class StorageManager:
     def update_balance(username: str, updated_balance: int, db_path: str = DB_PATH):
         with sqlite3.connect(db_path) as conn:
             conn.execute(
-                'UPDATE users SET balance = ? WHERE username = ?',
+                'UPDATE accounts SET balance = ? WHERE username = ?',
                 (updated_balance, username)
             )
             conn.commit()
@@ -85,7 +84,7 @@ class StorageManager:
     def update_lock(username: str, updated_status: int, db_path: str = DB_PATH):
         with sqlite3.connect(db_path) as conn:
             conn.execute(
-                'UPDATE users SET locked = ? WHERE username = ?',
+                'UPDATE accounts SET locked = ? WHERE username = ?',
                 (int(updated_status), username)
             )
             conn.commit()
@@ -103,5 +102,6 @@ class StorageManager:
             )
             conn.commit()
             return cursor.rowcount > 0
+
 
 STORAGE_MANAGER = StorageManager()
