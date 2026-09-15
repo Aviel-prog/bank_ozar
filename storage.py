@@ -35,35 +35,25 @@ def init_database(db_name: str = DB_PATH):
 class StorageManager:
     def __init__(self, db_path: str = DB_PATH):
         self.db_path = db_path
-        self.conn = None
-        self.connection = None
-        self.connect()
-
-    def connect(self):
-        """Establishes connection and creates table if it does not exist."""
-        self.conn = sqlite3.connect(self.db_path)
-        self.connection = self.conn.cursor()
-        self.connection.execute('PRAGMA foreign_keys = ON;')
-
-    def close(self):
-        """Closes the active database connection."""
-        if self.conn:
-            self.conn.close()
-            self.conn = None
-            self.connection = None
 
     def is_user_exist(self, username: str) -> bool:
-        self.connection.execute(
-            'SELECT username FROM accounts WHERE username = ?', (username,)
-        )
-        return self.connection.fetchone() is not None
+        with sqlite3.connect(self.db_path) as conn:
+            cursor = conn.execute(
+                'SELECT username FROM accounts WHERE username = ?', (username,)
+            )
+            return cursor.fetchone() is not None
 
     def get_user_information(self, username) -> AccountInfo:
-        self.connection.execute(
-            'SELECT username, balance, locked, account_type FROM accounts WHERE username = ?',
-            (username,)
-        )
-        row = self.connection.fetchone()
+        with sqlite3.connect(self.db_path) as conn:
+            cursor = conn.execute(
+                'SELECT username, balance, locked, account_type FROM accounts WHERE username = ?',
+                (username,)
+            )
+            row = cursor.fetchone()
+
+        if row is None:
+            raise ValueError(f"no account found for username '{username}'")
+
         return AccountInfo(
             username=row[0],
             balance=row[1],
