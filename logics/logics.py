@@ -67,7 +67,7 @@ class Logics:
         if user_info.account_type == AccountType.YELLOW:
             rules = ACCOUNT_RULES[user_info.account_type]
             return rules.subscription_list(user_info)  # TODO implement
-        return STORAGE_MANAGER.show_all_subscriptions()
+        return STORAGE_MANAGER.show_all_subscriptions(user_info.username)
 
     @classmethod
     def register_user(cls, username: str) -> AccountInfo:

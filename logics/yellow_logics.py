@@ -19,4 +19,4 @@ class YellowAccountRules(AccountRules):
     def subscription_list(user_info: AccountInfo):
         if user_info.username == AccountType.YELLOW:
             return False
-        return STORAGE_MANAGER.show_all_subscriptions()
+        return STORAGE_MANAGER.show_all_subscriptions(user_info.username)

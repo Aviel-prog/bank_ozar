@@ -84,7 +84,7 @@ class StorageManager:
             ''', (username, subscription_name))
             conn.commit()
 
-            if cursor.rowcount > 0: # TODO understate it
+            if cursor.rowcount > 0:  # TODO understate it
                 print(f"Subscription '{subscription_name}' deleted successfully for {username}.")
             else:
                 print(f"No subscription found matching '{subscription_name}' for {username}.")
@@ -94,8 +94,7 @@ class StorageManager:
         with sqlite3.connect(self.db_path_subscription) as conn:
             cursor = conn.cursor()
             cursor.execute('''
-                SELECT name, end_date, amount 
-                FROM subscription 
+                SELECT name, end_date, amount FROM subscriptions 
                 WHERE username = ?
             ''', (username,))
             rows = cursor.fetchall()
@@ -103,7 +102,6 @@ class StorageManager:
             if not rows:
                 print(f"No active subscriptions found for user: {username}")
                 return []
-
 
             print(f"--- Subscriptions for {username} ---")
             for row in rows:
