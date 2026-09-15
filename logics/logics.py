@@ -35,10 +35,6 @@ class Logics:
         if user_info.locked:
             return "locked"
 
-        amount = int(amount)
-        if amount < 0:
-            return "cant Zero money"
-
         rules = ACCOUNT_RULES[user_info.account_type]
         return rules.add_money(user_info, amount)
 
@@ -51,6 +47,7 @@ class Logics:
 
         rules = ACCOUNT_RULES[user_info.account_type]
         return rules.get_money(user_info, amount)
+
     @staticmethod
     def add_subscription(user_info: AccountInfo, subscription_name: str, date: str, amount: int):
         if user_info.locked:

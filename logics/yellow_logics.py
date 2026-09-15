@@ -17,6 +17,6 @@ class YellowAccountRules(AccountRules):
         return "got the money successfully"
     @staticmethod
     def subscription_list(user_info: AccountInfo):
-        if user_info.username == AccountType.YELLOW:
+        if user_info.username == AccountType.YELLOW: #TODO check it
             return False
         return STORAGE_MANAGER.show_all_subscriptions(user_info.username)

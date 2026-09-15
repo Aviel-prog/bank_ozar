@@ -1,6 +1,6 @@
 from constants import ACTION_OPTIONS
 from logics.logics import Logics
-from src.utils import is_valid_date
+from src.utils import is_valid_date, is_valid_number
 
 
 def api():
@@ -23,26 +23,20 @@ def api():
                 print(Logics.get_balance(user_info))
             case 2:
                 amount = input("how much money to add: ")
-                if not amount.isdigit():
-                    print("please enter a number")
+                if not is_valid_number(amount):
                     continue
                 print(Logics.add_money(user_info, int(amount)))
             case 3:
-                amount = input("how much money to get: ")
-                if not amount.isdigit():
-                    print("please enter a number")
+                amount = input("how much money to add: ")
+                if not is_valid_number(amount):
                     continue
-                amount_input = int(amount)
-                if amount_input < 0:
-                    print("please enter valid number")
-                    continue
-                print(Logics.get_money(user_info, amount_input))
+                print(Logics.get_money(user_info, int(amount)))
             case 4:
                 subscription_name = input("Enter subscription name: ")
                 date = input("Enter date: ")
                 if not is_valid_date(date):
                     print("date is not valid")
-                    break
+                    continue
                 amount = input("Enter how much: ")
                 print(Logics.add_subscription(user_info, subscription_name, date, int(amount)))
             case 5:
@@ -52,11 +46,13 @@ def api():
                 if not Logics.subscription_list(user_info):
                     continue
             case 7:
+                print("implement")
+            case 8:
                 deleted, message = Logics.del_account(user_info)
                 print(message)
                 if deleted:
                     break
-            case 8:
+            case 9:
                 print("Exit the Bank")
                 break
             case _:
