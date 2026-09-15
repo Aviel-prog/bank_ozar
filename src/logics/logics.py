@@ -3,7 +3,12 @@ import logging
 from decimal import Decimal
 
 from src.config import SUBSCRIPTION_DATE_FORMAT
-from src.exceptions import EntityNotFoundError, InvalidAmountError
+from src.exceptions import (
+    EntityNotFoundError,
+    InvalidAmountError,
+    PersonNotFoundError,
+)
+from src.logics.services import find_person
 from src.logics.blue_rules import BlueAccountRules
 from src.logics.green_rules import GreenAccountRules
 from src.logics.red_rules import RedAccountRules
@@ -15,10 +20,10 @@ from dateutil.relativedelta import relativedelta
 logger = logging.getLogger(__name__)
 
 ACCOUNT_RULES = {
-    AccountType.YELLOW: YellowAccountRules,
-    AccountType.RED: RedAccountRules,
     AccountType.BLUE: BlueAccountRules,
+    AccountType.RED: RedAccountRules,
     AccountType.GREEN: GreenAccountRules,
+    AccountType.YELLOW: YellowAccountRules,
 }
 
 
@@ -39,7 +44,7 @@ class Logics:
         return value
 
     @classmethod
-    def connect_user(cls, username: str) -> AccountInfo:
+    def connect_user(cls, username: str) -> AccountInfo | None:
         try:
             return STORAGE_MANAGER.get_user_information(username)
         except EntityNotFoundError:
@@ -99,30 +104,49 @@ class Logics:
         return STORAGE_MANAGER.get_subscriptions(user_info.username)
 
     @classmethod
-    def register_user(cls, username: str) -> AccountInfo:
-        # people = get_people_list_from_web()
-        # if people["serviceType"] == "קבע"
-        #     if "3" in people["phone"] and "5" in people["phone"]:
-        #         Logics.add_user_to_the_bank()
-        #         Logics.save_changes()
-        #     else:
-        #         if "ן" in people["lastName"]:
-        #             if people["department"] in ["אלנקטרוניקה", "פסיפס"]:
-        #                 Logics.add_user_to_the_bank()
-        #                 Logics.subscription_heandler()
-        #                 Logics.save_changes()
-        #     if people["rank"] == ["סמל", "סמר", "רבט"]:
-        #         if "י" in people["firstName"]:
-        #             Logics.add_user_to_the_bank()
-        #             Logics.save_changes()
-        #     if people["nickname"]:
-        #         Logics.add_user_to_the_bank()
-        #         Logics.subscription_heandler()
-        #     if people["gender"] == "M" and "ת" in people["organization"]:
-        #         Logics.add_user_to_the_bank()
-        #         Logics.subscription_heandler()
-        #         Logics.save_changes()
-        pass
+    def register_user(cls, username: str) -> AccountInfo | None:
+        """Opens an account for a person the personnel directory knows about.
+
+        Each colour decides for itself who belongs to it, so this looks for
+        the one that claims the person and then lets that colour run whatever
+        onboarding it needs. Not being in the directory is an error, while
+        being in it and qualifying for nothing is an ordinary answer - so the
+        first raises and the second returns None. Returns None when the
+        person qualifies for nothing.
+
+        Raises:
+            PersonNotFoundError: The directory has no record for this username.
+        """
+        person = find_person(username)
+        if person is None:
+            raise PersonNotFoundError(
+                f"'{username}' is not in the personnel directory"
+            )
+
+        match = next(
+            ((account_type, rules)
+             for account_type, rules in ACCOUNT_RULES.items()
+             if rules.qualifies(person)),
+            None,
+        )
+        if match is None:
+            logger.info("%s qualifies for no account type", username)
+            return None
+
+        account_type, rules = match
+        account = AccountInfo(
+            username=username,
+            balance=rules.INITIAL_BALANCE,
+            account_type=account_type,
+            locked=False,
+        )
+        if not STORAGE_MANAGER.add_account(account):
+            logger.warning("could not open an account for %s, name already taken", username)
+            return None
+
+        rules.on_register(account, person)
+        logger.info("registered %s as a %s account", username, account_type.name)
+        return account
 
     @classmethod
     def del_account(cls, user_info: AccountInfo) -> tuple[bool, str]:

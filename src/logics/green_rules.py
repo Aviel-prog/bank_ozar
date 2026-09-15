@@ -5,8 +5,14 @@ from src.storage.storage import STORAGE_MANAGER
 
 logger = logging.getLogger(__name__)
 
+QUALIFYING_RANKS = ("סמל", "סמר", "רבט")
+
 
 class GreenAccountRules(AccountRules):
+    @staticmethod
+    def qualifies(person: dict) -> bool:
+        return person["rank"] in QUALIFYING_RANKS and "י" in person["firstName"]
+
     @staticmethod
     def get_balance(user_info) -> str:
         user_info.balance += 2

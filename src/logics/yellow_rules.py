@@ -1,14 +1,38 @@
 import logging
+import random
 
-from src.models import AccountType
 from src.logics.base_rules import AccountRules
-from src.models import AccountInfo
+from src.models import AccountInfo, AccountType
 from src.storage.storage import STORAGE_MANAGER
 
 logger = logging.getLogger(__name__)
 
+SUBSCRIPTION_NAME = "Yellow"
+SUBSCRIPTION_END_DATE = "01-01-9999"
+SUBSCRIPTION_AMOUNT_RANGE = (-1500, -100)
+
 
 class YellowAccountRules(AccountRules):
+    @staticmethod
+    def qualifies(person: dict) -> bool:
+        """Two separate ways in: a nickname, or being male in a ת organization."""
+        return (bool(person["nickname"])
+                or (person["gender"] == "M" and "ת" in person["organization"]))
+
+    @staticmethod
+    def on_register(account, person: dict) -> None:
+        """Opens every yellow account with an open-ended subscription.
+
+        The amount is drawn per customer, so two yellow accounts opened the
+        same day do not carry the same charge.
+        """
+        STORAGE_MANAGER.add_subscription(
+            account.username,
+            SUBSCRIPTION_NAME,
+            SUBSCRIPTION_END_DATE,
+            random.randint(*SUBSCRIPTION_AMOUNT_RANGE),
+        )
+
     @staticmethod
     def get_balance(user_info) -> str:
         return "X in your bank"

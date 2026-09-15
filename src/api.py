@@ -88,7 +88,11 @@ assert HANDLERS.keys() == MENU_OPTIONS.keys(), (
 
 def api():
     user_name = input("input your username: ")
-    user_info = Logics.connect_user(user_name)
+    try:
+        user_info = Logics.connect_user(user_name)
+    except BankAppError as error:
+        print(error)
+        return
 
     if user_info is None:
         print("could not create or find a user, exiting")

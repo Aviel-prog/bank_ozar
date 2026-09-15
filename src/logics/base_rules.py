@@ -14,6 +14,27 @@ class AccountRules:
     rather than ``super()``, which is unavailable without a bound instance.
     """
 
+    #: What a newly opened account of this colour starts with.
+    INITIAL_BALANCE = 0
+
+    @staticmethod
+    def qualifies(person: dict) -> bool:
+        """Whether this person should be opened as this kind of account.
+
+        The criteria across the colours do not overlap - a person qualifies
+        for exactly one - so whichever class says yes is the answer. The base
+        says no, so a colour that defines no criteria is never handed anyone.
+        """
+        return False
+
+    @staticmethod
+    def on_register(account, person: dict) -> None:
+        """Extra steps to run once, when this kind of account is opened.
+
+        Doing nothing is the default, so a colour only mentions onboarding if
+        it actually has some.
+        """
+
     @staticmethod
     def get_balance(user_info) -> str:
         return "{balance} in your bank".format(balance=user_info.balance)

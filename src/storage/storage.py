@@ -58,6 +58,27 @@ class StorageManager:
             account_type=AccountType(row[3])
         )
 
+    def add_account(self, account: AccountInfo) -> bool:
+        """Opens a new account, returning False if the username is taken.
+
+        A clash is an ordinary outcome of two people picking the same name,
+        not a database fault, so it comes back as False rather than an error.
+        """
+        try:
+            with self._connect(self.db_account_path) as conn:
+                conn.execute(
+                    '''INSERT INTO accounts (username, balance, account_type, locked)
+                       VALUES (?, ?, ?, ?)''',
+                    (account.username, account.balance,
+                     account.account_type.value, int(account.locked))
+                )
+        except DatabaseError as error:
+            if isinstance(error.__cause__, sqlite3.IntegrityError):
+                logger.info("account for %s already exists", account.username)
+                return False
+            raise
+        return True
+
     def update_balance(self, username: str, updated_balance: int) -> None:
         with self._connect(self.db_account_path) as conn:
             conn.execute(
