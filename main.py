@@ -1,6 +1,6 @@
 from constants import ACTION_OPTIONS
 from logics import Logics
-from storage import init_database, STORAGE_MANAGER
+from db_setup import init_database
 
 
 def api():
@@ -57,7 +57,6 @@ def api():
 def main():
     init_database()
     api()
-    STORAGE_MANAGER.close()
 
 
 if __name__ == "__main__":

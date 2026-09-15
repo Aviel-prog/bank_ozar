@@ -1,3 +1,8 @@
+import sqlite3
+
+from constants import DB_PATH
+
+
 def init_database(db_name: str = DB_PATH):
     with sqlite3.connect(db_name) as conn:
         cursor = conn.cursor()
