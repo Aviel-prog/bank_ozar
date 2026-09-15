@@ -94,10 +94,6 @@ def api():
         print(error)
         return
 
-    if user_info is None:
-        print("could not create or find a user, exiting")
-        return
-
     while True:
         choice = input(render_menu()).strip()
         handler = HANDLERS.get(choice)

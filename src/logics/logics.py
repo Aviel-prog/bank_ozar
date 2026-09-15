@@ -4,8 +4,10 @@ from decimal import Decimal
 
 from src.config import SUBSCRIPTION_DATE_FORMAT
 from src.exceptions import (
+    AccountAlreadyExistsError,
     EntityNotFoundError,
     InvalidAmountError,
+    NoQualifyingAccountTypeError,
     PersonNotFoundError,
 )
 from src.logics.services import find_person
@@ -44,7 +46,7 @@ class Logics:
         return value
 
     @classmethod
-    def connect_user(cls, username: str) -> AccountInfo | None:
+    def connect_user(cls, username: str) -> AccountInfo:
         try:
             return STORAGE_MANAGER.get_user_information(username)
         except EntityNotFoundError:
@@ -104,18 +106,19 @@ class Logics:
         return STORAGE_MANAGER.get_subscriptions(user_info.username)
 
     @classmethod
-    def register_user(cls, username: str) -> AccountInfo | None:
+    def register_user(cls, username: str) -> AccountInfo:
         """Opens an account for a person the personnel directory knows about.
 
         Each colour decides for itself who belongs to it, so this looks for
         the one that claims the person and then lets that colour run whatever
-        onboarding it needs. Not being in the directory is an error, while
-        being in it and qualifying for nothing is an ordinary answer - so the
-        first raises and the second returns None. Returns None when the
-        person qualifies for nothing.
+        onboarding it needs. Every way of not producing an account raises, so
+        a caller that gets a return value got a real account and never has to
+        check it for None.
 
         Raises:
             PersonNotFoundError: The directory has no record for this username.
+            NoQualifyingAccountTypeError: The person meets no colour's criteria.
+            AccountAlreadyExistsError: The username was taken in the meantime.
         """
         person = find_person(username)
         if person is None:
@@ -130,8 +133,9 @@ class Logics:
             None,
         )
         if match is None:
-            logger.info("%s qualifies for no account type", username)
-            return None
+            raise NoQualifyingAccountTypeError(
+                f"'{username}' does not meet the criteria for any account type"
+            )
 
         account_type, rules = match
         account = AccountInfo(
@@ -141,8 +145,9 @@ class Logics:
             locked=False,
         )
         if not STORAGE_MANAGER.add_account(account):
-            logger.warning("could not open an account for %s, name already taken", username)
-            return None
+            raise AccountAlreadyExistsError(
+                f"an account for '{username}' already exists"
+            )
 
         rules.on_register(account, person)
         logger.info("registered %s as a %s account", username, account_type.name)
