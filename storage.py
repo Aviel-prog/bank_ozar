@@ -9,7 +9,7 @@ def init_database(db_name: str = DB_PATH):
         cursor = conn.cursor()
 
         cursor.execute("""
-            CREATE TABLE IF NOT EXISTS users (
+            CREATE TABLE IF NOT EXISTS accounts (
                 username TEXT PRIMARY KEY NOT NULL,
                 balance INTEGER NOT NULL DEFAULT 0,
                 account_type INTEGER NOT NULL DEFAULT 1,
@@ -18,7 +18,7 @@ def init_database(db_name: str = DB_PATH):
         """)
 
         cursor.executemany("""
-            INSERT OR IGNORE INTO users (username, balance, account_type, locked)
+            INSERT OR IGNORE INTO accounts (username, balance, account_type, locked)
             VALUES (?, ?, ?, ?);
         """, [
             ("t_osherzi", 1500, 1, False),
@@ -64,7 +64,7 @@ class StorageManager:
             (username,)
         )
         row = self.connection.fetchone()
-        print(f"dibug + {row}")
+        print(f"debugging {row}")
         return AccountInfo(
             username=row[0],
             balance=row[1],
@@ -93,5 +93,15 @@ class StorageManager:
     def delete_subscription(self, username: str, subscription_name: str):
         pass
 
-    def delete_account(self, username: str):
-        pass
+    @staticmethod
+    def delete_account(username: str, db_path: str = DB_PATH):
+        """Deletes a user account from the database by username."""
+        with sqlite3.connect(db_path) as conn:
+            cursor = conn.execute(
+                "DELETE FROM accounts WHERE username = ?",
+                (username,)
+            )
+            conn.commit()
+            return cursor.rowcount > 0
+
+STORAGE_MANAGER = StorageManager()

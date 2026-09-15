@@ -1,7 +1,6 @@
 from constants import ACTION_OPTIONS
 from logics import Logics
-from storage import init_database
-from utils import is_valid_menu_choice
+from storage import init_database, STORAGE_MANAGER
 
 
 def api():
@@ -14,7 +13,7 @@ def api():
 
     while True:
         choice_raw = input(ACTION_OPTIONS)
-        if not is_valid_menu_choice(choice_raw):
+        if not choice_raw.isdigit():
             print("please enter a number")
             continue
         client_choice = int(choice_raw)
@@ -27,7 +26,14 @@ def api():
                 print(Logics.add_money(user_info, amount))
             case 3:
                 amount = input("how much money to get: ")
-                print(Logics.get_money(user_info, amount))
+                if not amount.isdigit():
+                    print("please enter a number")
+                    continue
+                amount_input = int(amount)
+                if amount_input < 0:
+                    print("please enter valid number")
+                    continue
+                print(Logics.get_money(user_info, amount_input))
             case 4:
                 print("add subscription - not implemented yet")
             case 5:
@@ -37,7 +43,10 @@ def api():
             case 6:
                 print("list subscriptions - not implemented yet")
             case 7:
-                print(Logics.delete_account(user_info))
+                result = Logics.del_account(user_info)
+                print(result)
+                if "not" not in result:
+                    break
             case 8:
                 print("Exit the Bank")
                 break
@@ -48,6 +57,7 @@ def api():
 def main():
     init_database()
     api()
+    STORAGE_MANAGER.close()
 
 
 if __name__ == "__main__":
