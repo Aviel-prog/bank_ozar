@@ -1,6 +1,5 @@
 from constants import ACTION_OPTIONS
-from logics import Logics
-from db_setup import init_database
+from logics.logics import Logics
 
 
 def api():
@@ -23,7 +22,10 @@ def api():
                 print(Logics.get_balance(user_info))
             case 2:
                 amount = input("how much money to add: ")
-                print(Logics.add_money(user_info, amount))
+                if not amount.isdigit():
+                    print("please enter a number")
+                    continue
+                print(Logics.add_money(user_info, int(amount)))
             case 3:
                 amount = input("how much money to get: ")
                 if not amount.isdigit():
@@ -43,21 +45,12 @@ def api():
             case 6:
                 print("list subscriptions - not implemented yet")
             case 7:
-                result = Logics.del_account(user_info)
-                print(result)
-                if "not" not in result:
+                deleted, message = Logics.del_account(user_info)
+                print(message)
+                if deleted:
                     break
             case 8:
                 print("Exit the Bank")
                 break
             case _:
                 print("invalid Input")
-
-
-def main():
-    init_database()
-    api()
-
-
-if __name__ == "__main__":
-    main()

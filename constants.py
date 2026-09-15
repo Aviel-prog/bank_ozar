@@ -3,15 +3,20 @@ from enum import Enum
 DB_PATH = "db.sqlite3"
 
 ACTION_OPTIONS = (
-    "1. balance\n"
-    "2. add money\n"
-    "3. get money\n"
-    "4. add subscription\n"
-    "5. delete subscription\n"
-    "6. list subscriptions\n"
-    "7. delete account\n"
-    "8. exit the app\n"
-    "> "
+    "\n"
+    "┌────────[ BANK OZAR CORE SERVICES ]──────────┐\n"
+    "│                                             │\n"
+    "│   [1] balance      ── View current funds    │\n"
+    "│   [2] deposit      ── Add funds             │\n"
+    "│   [3] withdraw     ── Get cash              │\n"
+    "│   [4] sub:list     ── View subscriptions    │\n"
+    "│   [5] sub:add      ── New recurring payment │\n"
+    "│   [6] sub:remove   ── Cancel subscription   │\n"
+    "│   [7] purge        ── Close account         │\n"
+    "│   [8] exit         ── Terminate session     │\n"
+    "│                                             │\n"
+    "└─────────────────────────────────────────────┘\n"
+    "Command > "
 )
 
 

@@ -1,8 +1,17 @@
-from Account_rules import ACCOUNT_RULES
-from constants import DB_PATH
+from constants import AccountType
+from logics.blue_logics import BlueAccountRules
+from logics.green_logics import GreenAccountRules
+from logics.red_logics import RedAccountRules
+from logics.yellow_logics import YellowAccountRules
 from models import AccountInfo
-from storage import STORAGE_MANAGER
+from storage.storage import STORAGE_MANAGER
 
+ACCOUNT_RULES = {
+    AccountType.YELLOW: YellowAccountRules(),
+    AccountType.RED: RedAccountRules(),
+    AccountType.BLUE: BlueAccountRules(),
+    AccountType.GREEN: GreenAccountRules(),
+}
 
 class Logics:
     @classmethod
@@ -78,9 +87,13 @@ class Logics:
         pass
 
     @classmethod
-    def del_account(cls, user_info: AccountInfo) -> str:
-        """Deletes account using the provided user AccountInfo model."""
-        deleted = STORAGE_MANAGER.delete_account(user_info.username, DB_PATH)
+    def del_account(cls, user_info: AccountInfo) -> tuple[bool, str]:
+        """Deletes account using the provided user AccountInfo model.
+
+        Returns a (success, message) tuple so callers can branch on the
+        boolean instead of inspecting the wording of the message.
+        """
+        deleted = STORAGE_MANAGER.delete_account(user_info.username)
         if deleted:
-            return f"Account '{user_info.username}' deleted successfully."
-        return f"Account '{user_info.username}' not found."
+            return True, f"Account '{user_info.username}' deleted successfully."
+        return False, f"Account '{user_info.username}' not found."
