@@ -10,6 +10,11 @@ class GreenAccountRules(AccountRules):
         return AccountRules.get_balance(user_info)
 
     @staticmethod
+    def get_money(user_info, amount: int) -> str:
+        """Green accounts overdraw freely - no limit and no lock."""
+        return AccountRules._withdraw(user_info, amount)
+
+    @staticmethod
     def balance_next_pay_day(amount: int) -> str:
         if amount % 2 != 0:
             amount -= 100
