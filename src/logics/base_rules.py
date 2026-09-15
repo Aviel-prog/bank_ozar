@@ -1,4 +1,8 @@
+import logging
+
 from src.storage.storage import STORAGE_MANAGER
+
+logger = logging.getLogger(__name__)
 
 
 class AccountRules:
@@ -18,12 +22,16 @@ class AccountRules:
     def add_money(user_info, amount: int) -> str:
         user_info.balance += amount
         STORAGE_MANAGER.update_balance(user_info.username, user_info.balance)
+        logger.info("deposit of %s by %s, balance now %s",
+                    amount, user_info.username, user_info.balance)
         return "added successfully"
 
     @staticmethod
     def get_money(user_info, amount: int) -> str:
         user_info.balance -= amount
         STORAGE_MANAGER.update_balance(user_info.username, user_info.balance)
+        logger.info("withdrawal of %s by %s, balance now %s",
+                    amount, user_info.username, user_info.balance)
         return "got the money successfully"
 
     @staticmethod

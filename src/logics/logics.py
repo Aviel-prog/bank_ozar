@@ -1,4 +1,5 @@
 import datetime
+import logging
 from decimal import Decimal
 
 from src.config import SUBSCRIPTION_DATE_FORMAT
@@ -10,6 +11,8 @@ from src.logics.yellow_rules import YellowAccountRules
 from src.models import AccountInfo, AccountType
 from src.storage.storage import STORAGE_MANAGER
 from dateutil.relativedelta import relativedelta
+
+logger = logging.getLogger(__name__)
 
 ACCOUNT_RULES = {
     AccountType.YELLOW: YellowAccountRules,
@@ -40,7 +43,7 @@ class Logics:
         try:
             return STORAGE_MANAGER.get_user_information(username)
         except EntityNotFoundError:
-            print("user not exist")
+            logger.info("no account for username %s, attempting registration", username)
             return cls.register_user(username)
 
     @classmethod
@@ -93,7 +96,7 @@ class Logics:
         if user_info.account_type == AccountType.YELLOW:
             rules = ACCOUNT_RULES[user_info.account_type]
             return rules.subscription_list(user_info)  # TODO implement
-        return STORAGE_MANAGER.show_subscriptions(user_info.username)
+        return STORAGE_MANAGER.get_subscriptions(user_info.username)
 
     @classmethod
     def register_user(cls, username: str) -> AccountInfo:
@@ -129,6 +132,8 @@ class Logics:
         boolean instead of inspecting the wording of the message.
         """
         deleted = STORAGE_MANAGER.delete_account(user_info.username)
+        logger.info("account deletion for %s: %s", user_info.username,
+                    "done" if deleted else "no such account")
         if deleted:
             return True, f"Account '{user_info.username}' deleted successfully."
         return False, f"Account '{user_info.username}' not found."

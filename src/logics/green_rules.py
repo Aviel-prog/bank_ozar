@@ -1,5 +1,9 @@
+import logging
+
 from src.logics.base_rules import AccountRules
 from src.storage.storage import STORAGE_MANAGER
+
+logger = logging.getLogger(__name__)
 
 
 class GreenAccountRules(AccountRules):
@@ -7,6 +11,8 @@ class GreenAccountRules(AccountRules):
     def get_balance(user_info) -> str:
         user_info.balance += 2
         STORAGE_MANAGER.update_balance(user_info.username, user_info.balance)
+        logger.info("green bonus of 2 credited to %s, balance now %s",
+                    user_info.username, user_info.balance)
         return AccountRules.get_balance(user_info)
 
     @staticmethod

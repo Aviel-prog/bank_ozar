@@ -40,7 +40,14 @@ def _remove_subscription(user_info: AccountInfo) -> bool:
 
 
 def _list_subscriptions(user_info: AccountInfo) -> bool:
-    Logics.subscription_list(user_info)
+    subscriptions = Logics.subscription_list(user_info)
+    if not subscriptions:
+        print(f"No active subscriptions found for user: {user_info.username}")
+        return True
+
+    print(f"--- Subscriptions for {user_info.username} ---")
+    for name, end_date, amount in subscriptions:
+        print(f"Name: {name} | Ends: {end_date} | Amount: ${amount:.2f}")
     return True
 
 

@@ -218,4 +218,12 @@ __marimo__/
 # Streamlit
 .streamlit/secrets.toml
 
+# Local databases - data, not source. Created on first run by src/storage/.
 db.accounts
+db.subscription
+
+# macOS
+.DS_Store
+
+# Logs
+*.log

@@ -1,5 +1,8 @@
+import logging
 import sqlite3
 from src.config import DB_ACCOUNTS_PATH
+
+logger = logging.getLogger(__name__)
 
 
 def init_accounts_database(db_name: str = DB_ACCOUNTS_PATH):
@@ -30,4 +33,4 @@ def init_accounts_database(db_name: str = DB_ACCOUNTS_PATH):
             ])
 
         conn.commit()
-        print(f"accounts Database successfully created/connected at '{db_name}'!")
+    logger.info("accounts database ready at '%s'", db_name)

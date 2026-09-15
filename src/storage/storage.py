@@ -1,3 +1,4 @@
+import logging
 import sqlite3
 from contextlib import contextmanager
 
@@ -5,6 +6,8 @@ from src.config import DB_ACCOUNTS_PATH, DB_SUBSCRIPTION_PATH
 from src.models import AccountType
 from src.exceptions import DatabaseError, EntityNotFoundError
 from src.models import AccountInfo
+
+logger = logging.getLogger(__name__)
 
 
 class StorageManager:
@@ -101,8 +104,12 @@ class StorageManager:
             ''', (username, subscription_name))
             return cursor.rowcount > 0
 
-    def show_subscriptions(self, username: str) -> list:
-        """Fetches all subscriptions belonging to a user."""
+    def get_subscriptions(self, username: str) -> list:
+        """Returns every subscription belonging to a user.
+
+        Storage hands the rows back rather than printing them - deciding how
+        a subscription looks on screen is the menu's job, not the database's.
+        """
         with self._connect(self.db_path_subscription) as conn:
             cursor = conn.execute('''
                 SELECT name, end_date, amount FROM subscriptions 
@@ -110,13 +117,7 @@ class StorageManager:
             ''', (username,))
             rows = cursor.fetchall()
 
-        if not rows:
-            print(f"No active subscriptions found for user: {username}")
-            return []
-
-        print(f"--- Subscriptions for {username} ---")
-        for row in rows:
-            print(f"Name: {row[0]} | Ends: {row[1]} | Amount: ${row[2]:.2f}")
+        logger.debug("found %d subscription(s) for %s", len(rows), username)
         return rows
 
 

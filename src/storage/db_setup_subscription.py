@@ -1,5 +1,8 @@
+import logging
 import sqlite3
 from src.config import DB_SUBSCRIPTION_PATH
+
+logger = logging.getLogger(__name__)
 
 
 def init_subscription_database(db_name: str = DB_SUBSCRIPTION_PATH):
@@ -35,4 +38,4 @@ def init_subscription_database(db_name: str = DB_SUBSCRIPTION_PATH):
             ])
             conn.commit()
 
-        print(f"subscriptions Database successfully created/connected at '{db_name}'!")
+    logger.info("subscriptions database ready at '%s'", db_name)

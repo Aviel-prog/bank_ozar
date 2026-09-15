@@ -1,4 +1,7 @@
+import logging
 from datetime import datetime
+
+logger = logging.getLogger(__name__)
 
 def is_valid_date(date_str: str) -> bool:
     try:
@@ -17,14 +20,14 @@ def is_valid_number(number) -> bool:
         value = float(number)
 
         if value <= 0:
-            print("Amount must be greater than zero.")
+            logger.warning("rejected amount %r: not greater than zero", number)
             return False
 
         return True
 
     except (ValueError, TypeError):
         # Triggers if the input contains letters, symbols, or is None
-        print("Please enter a valid numeric value.")
+        logger.warning("rejected amount %r: not a number", number)
         return False
 
 
