@@ -1,5 +1,5 @@
-from logics.base_rules import AccountRules
-from storage.storage import STORAGE_MANAGER
+from src.logics.base_rules import AccountRules
+from src.storage.storage import STORAGE_MANAGER
 
 
 class GreenAccountRules(AccountRules):
@@ -8,11 +8,6 @@ class GreenAccountRules(AccountRules):
         user_info.balance += 2
         STORAGE_MANAGER.update_balance(user_info.username, user_info.balance)
         return AccountRules.get_balance(user_info)
-
-    @staticmethod
-    def get_money(user_info, amount: int) -> str:
-        """Green accounts overdraw freely - no limit and no lock."""
-        return AccountRules._withdraw(user_info, amount)
 
     @staticmethod
     def balance_next_pay_day(amount: int) -> str:

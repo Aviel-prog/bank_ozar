@@ -1,8 +1,8 @@
 import sqlite3
-from constants import DB_SUBSCRIPTION_PATH
+from src.config import DB_SUBSCRIPTION_PATH
 
 
-def init_subcriptionManager_database(db_name: str = DB_SUBSCRIPTION_PATH):
+def init_subscription_database(db_name: str = DB_SUBSCRIPTION_PATH):
     """Creates the subscription table if it does not exist."""
     with sqlite3.connect(db_name) as conn:
         cursor = conn.cursor()

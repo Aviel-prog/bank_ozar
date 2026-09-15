@@ -1,5 +1,15 @@
-from constants import AccountType
+"""Domain models for the banking application."""
 
+from enum import Enum
+
+
+class AccountType(Enum):
+    """The account tiers, each with its own rule set."""
+
+    YELLOW = 1
+    RED = 2
+    BLUE = 3
+    GREEN = 4
 
 
 class AccountInfo:

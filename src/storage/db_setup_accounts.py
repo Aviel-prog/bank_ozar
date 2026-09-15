@@ -1,5 +1,5 @@
 import sqlite3
-from constants import DB_ACCOUNTS_PATH
+from src.config import DB_ACCOUNTS_PATH
 
 
 def init_accounts_database(db_name: str = DB_ACCOUNTS_PATH):
