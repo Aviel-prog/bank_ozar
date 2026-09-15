@@ -1,5 +1,8 @@
 import datetime
+from decimal import Decimal
+
 from constants import AccountType
+from exeptions import EntityNotFoundError, InvalidAmountError
 from logics.blue_logics import BlueAccountRules
 from logics.green_logics import GreenAccountRules
 from logics.red_logics import RedAccountRules
@@ -15,14 +18,32 @@ ACCOUNT_RULES = {
     AccountType.GREEN: GreenAccountRules,
 }
 
+SUBSCRIPTION_DATE_FORMAT = "%d-%m-%Y"
+
 
 class Logics:
+    @staticmethod
+    def _validate_amount(amount) -> int:
+        """Returns the amount as a positive whole number, or raises.
+
+        Rejects text, decimals, negatives and zero, so no caller has to guess
+        whether the value it was handed is safe to do arithmetic with.
+        """
+        try:
+            value = int(str(amount).strip())
+        except (TypeError, ValueError):
+            raise InvalidAmountError(f"'{amount}' is not a whole number") from None
+        if value <= 0:
+            raise InvalidAmountError("amount must be greater than zero")
+        return value
+
     @classmethod
     def connect_user(cls, username: str) -> AccountInfo:
-        if STORAGE_MANAGER.is_user_exist(username):
+        try:
             return STORAGE_MANAGER.get_user_information(username)
-        print("user not exist")
-        return cls.register_user(username)
+        except EntityNotFoundError:
+            print("user not exist")
+            return cls.register_user(username)
 
     @classmethod
     def get_balance(cls, user_info: AccountInfo) -> str:
@@ -37,6 +58,7 @@ class Logics:
         if user_info.locked:
             return "locked"
 
+        amount = cls._validate_amount(amount)
         rules = ACCOUNT_RULES[user_info.account_type]
         return rules.add_money(user_info, amount)
 
@@ -45,16 +67,22 @@ class Logics:
         if user_info.locked:
             return "locked"
 
-        amount = int(amount)
-
+        amount = cls._validate_amount(amount)
         rules = ACCOUNT_RULES[user_info.account_type]
         return rules.get_money(user_info, amount)
 
-    @staticmethod
-    def add_subscription(user_info: AccountInfo, subscription_name: str, date: str, amount: int):
+    @classmethod
+    def add_subscription(cls, user_info: AccountInfo, subscription_name: str, date: str, amount) -> str:
         if user_info.locked:
             return "locked"
-        return STORAGE_MANAGER.add_subscription(user_info.username, subscription_name, date, amount)
+
+        amount = cls._validate_amount(amount)
+        added = STORAGE_MANAGER.add_subscription(
+            user_info.username, subscription_name, date, amount
+        )
+        if not added:
+            return "subscription {} already exists".format(subscription_name)
+        return "the subscription {} added successfully".format(subscription_name)
 
     @staticmethod
     def del_subscription(user_info: AccountInfo, subscription_name: str):
@@ -106,12 +134,28 @@ class Logics:
         if deleted:
             return True, f"Account '{user_info.username}' deleted successfully."
         return False, f"Account '{user_info.username}' not found."
+
+
     @classmethod
-    def balabce_next_day(cls, user_info: AccountInfo):
-        row = cls.subscription_list(user_info)
-        one_month = datetime.date().today() + relativedelta((months=+1))
-        the_end = datetime.datetime.strptime(row[1], "%d-&m-%y").date()
-        if the_end > one_month:
-            amount = row[2] + user_info.balance
-            return ACCOUNT_RULES[user_info.account_type].balance_next_day(amount)
-        return "next pay day money: " + row[1]
+    def balance_next_day(cls, user_info: AccountInfo):
+        """Project the account balance for the next billing day.
+
+        If the subscription ends within the next month, no further charge is
+        expected and the current balance stands. Otherwise the upcoming
+        monthly amount is included and the account-type rules are applied.
+        """
+        subscription = cls.subscription_list(user_info)
+        if not subscription:
+            raise ValueError(f"no subscription for account {user_info.username}")
+
+        _, end_date_raw, monthly_amount = subscription
+        end_date = datetime.datetime.strptime(
+            end_date_raw, SUBSCRIPTION_DATE_FORMAT
+        ).date()
+
+        if end_date <= datetime.date.today() + relativedelta(months=1):
+            return user_info.balance
+
+        rules = ACCOUNT_RULES[user_info.account_type]
+        return rules.balance_next_day(monthly_amount + user_info.balance)
+        

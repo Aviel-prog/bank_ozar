@@ -3,11 +3,14 @@ from storage.storage import STORAGE_MANAGER
 
 
 class GreenAccountRules(AccountRules):
-    def get_balance(self, user_info) -> str:
+    @staticmethod
+    def get_balance(user_info) -> str:
         user_info.balance += 2
         STORAGE_MANAGER.update_balance(user_info.username, user_info.balance)
-        return "{balance} in your bank".format(balance=user_info.balance)
+        return AccountRules.get_balance(user_info)
 
-    def balance_next_pay_day(self, amount: int):
+    @staticmethod
+    def balance_next_pay_day(amount: int) -> str:
         if amount % 2 != 0:
             amount -= 100
+        return AccountRules.balance_next_pay_day(amount)

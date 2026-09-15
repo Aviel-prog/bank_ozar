@@ -1,7 +1,8 @@
+import os
 from enum import Enum
 
 DB_ACCOUNTS_PATH = "db.accounts"
-DB_SUBSCRIPTION_PATH = "db.subscription"
+DB_SUBSCRIPTION_PATH = os.getenv("DB_SUBSCRIPTION_PATH", "db.subscription")
 
 ACTION_OPTIONS = (
     "\n"

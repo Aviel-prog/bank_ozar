@@ -28,10 +28,10 @@ def init_subcriptionManager_database(db_name: str = DB_SUBSCRIPTION_PATH):
                 INSERT INTO subscriptions (username, name, end_date, amount)
                 VALUES (?, ?, ?, ?);
             """, [
-                ("t_osherzi", "Premium Plan", "2026-12-31", 15.00),
-                ("t_idome", "Cloud Storage", "2026-10-01", 10.00),
-                ("t_raz_ba", "Enterprise Package", "2027-06-01", 100.00),
-                ("t_noabir", "Streaming Pass", "2026-09-30", 0.00)
+                ("t_osherzi", "Premium Plan", "31-12-2026", 15.00),
+                ("t_idome", "Cloud Storage", "01-10-2026", 10.00),
+                ("t_raz_ba", "Enterprise Package", "01-06-2027", 100.00),
+                ("t_noabir", "Streaming Pass", "30-09-2026", 0.00)
             ])
             conn.commit()
 

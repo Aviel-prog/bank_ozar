@@ -19,3 +19,7 @@ class LimitExceededError(BankAppError):
 
 class DatabaseError(BankAppError):
     """Raised when an unexpected SQLite error occurs."""
+
+
+class InvalidAmountError(BankAppError):
+    """Raised when a transaction amount is not a positive whole number."""
