@@ -7,3 +7,7 @@ class GreenAccountRules(AccountRules):
         user_info.balance += 2
         STORAGE_MANAGER.update_balance(user_info.username, user_info.balance)
         return "{balance} in your bank".format(balance=user_info.balance)
+
+    def balance_next_pay_day(self, amount: int):
+        if amount % 2 != 0:
+            amount -= 100

@@ -1,3 +1,4 @@
+import datetime
 from constants import AccountType
 from logics.blue_logics import BlueAccountRules
 from logics.green_logics import GreenAccountRules
@@ -5,12 +6,13 @@ from logics.red_logics import RedAccountRules
 from logics.yellow_logics import YellowAccountRules
 from models import AccountInfo
 from storage.storage import STORAGE_MANAGER
+from dateutil.relativedelta import relativedelta
 
 ACCOUNT_RULES = {
-    AccountType.YELLOW: YellowAccountRules(),
-    AccountType.RED: RedAccountRules(),
-    AccountType.BLUE: BlueAccountRules(),
-    AccountType.GREEN: GreenAccountRules(),
+    AccountType.YELLOW: YellowAccountRules,
+    AccountType.RED: RedAccountRules,
+    AccountType.BLUE: BlueAccountRules,
+    AccountType.GREEN: GreenAccountRules,
 }
 
 
@@ -60,12 +62,12 @@ class Logics:
             return "No subscription found matching {}.".format(subscription_name)
         return "the subscription {} deleted successfully".format(subscription_name)
 
-    @staticmethod
-    def subscription_list(user_info: AccountInfo):
+    @classmethod
+    def subscription_list(cls, user_info: AccountInfo):
         if user_info.account_type == AccountType.YELLOW:
             rules = ACCOUNT_RULES[user_info.account_type]
             return rules.subscription_list(user_info)  # TODO implement
-        return STORAGE_MANAGER.show_all_subscriptions(user_info.username)
+        return STORAGE_MANAGER.show_subscriptions(user_info.username)
 
     @classmethod
     def register_user(cls, username: str) -> AccountInfo:
@@ -104,3 +106,12 @@ class Logics:
         if deleted:
             return True, f"Account '{user_info.username}' deleted successfully."
         return False, f"Account '{user_info.username}' not found."
+    @classmethod
+    def balabce_next_day(cls, user_info: AccountInfo):
+        row = cls.subscription_list(user_info)
+        one_month = datetime.date().today() + relativedelta((months=+1))
+        the_end = datetime.datetime.strptime(row[1], "%d-&m-%y").date()
+        if the_end > one_month:
+            amount = row[2] + user_info.balance
+            return ACCOUNT_RULES[user_info.account_type].balance_next_day(amount)
+        return "next pay day money: " + row[1]

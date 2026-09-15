@@ -87,7 +87,7 @@ class StorageManager:
             if cursor.rowcount > 0:  # TODO understate it
                 return True
 
-    def show_all_subscriptions(self, username: str):
+    def show_subscriptions(self, username: str):
         """Fetches and displays all subscriptions belonging to a user."""
         with sqlite3.connect(self.db_path_subscription) as conn:
             cursor = conn.cursor()
