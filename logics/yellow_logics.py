@@ -1,4 +1,6 @@
+from constants import AccountType
 from logics.base_rules import AccountRules
+from models import AccountInfo
 from storage.storage import STORAGE_MANAGER
 
 
@@ -13,3 +15,8 @@ class YellowAccountRules(AccountRules):
             STORAGE_MANAGER.update_lock(user_info.username, True)
             return "you have less than 0 in your account now"
         return "got the money successfully"
+    @staticmethod
+    def subscription_list(user_info: AccountInfo):
+        if user_info.username == AccountType.YELLOW:
+            return False
+        return STORAGE_MANAGER.show_all_subscriptions()

@@ -1,5 +1,6 @@
 from constants import ACTION_OPTIONS
 from logics.logics import Logics
+from src.utils import is_valid_date
 
 
 def api():
@@ -37,18 +38,20 @@ def api():
                     continue
                 print(Logics.get_money(user_info, amount_input))
             case 4:
-                # name - user
-                # date - user
-                # check the date - pydntic
-                # insert to the sub db - create sub db
-                print("add subscription - not implemented yet")
+                subscription_name = input("Enter subscription name: ")
+                date = input("Enter date: ")
+                if not is_valid_date(date):
+                    print("date is not valid")
+                    break
+                amount = input("Enter how much: ")
+                print(Logics.add_subscription(user_info.username, subscription_name, date, amount))
             case 5:
                 subscription_name = input("Enter subscription name: ")
-                Logics.delete_subscription(user_info, subscription_name)
-                print("delete subscription - not implemented yet")
+                print(Logics.del_subscription(user_info, subscription_name))
             case 6:
-                
-                print("list subscriptions - not implemented yet")
+                if not Logics.subscription_list(user_info):
+                    continue
+
             case 7:
                 deleted, message = Logics.del_account(user_info)
                 print(message)

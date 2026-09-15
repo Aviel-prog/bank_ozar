@@ -13,6 +13,7 @@ ACCOUNT_RULES = {
     AccountType.GREEN: GreenAccountRules(),
 }
 
+
 class Logics:
     @classmethod
     def connect_user(cls, username: str) -> AccountInfo:
@@ -51,14 +52,22 @@ class Logics:
         rules = ACCOUNT_RULES[user_info.account_type]
         return rules.get_money(user_info, amount)
 
-    def add_subscription(self):
-        pass
+    def add_subscription(self, user_info: AccountInfo, subscription_name: str, date: str, amount: int):
+        if user_info.locked:
+            return "locked"
+        return STORAGE_MANAGER.add_subscription(user_info.username, subscription_name, date, amount)
 
-    def delete_subscription(self, user_info: AccountInfo, subscription_name: str):
-        pass
+    @staticmethod
+    def del_subscription(user_info: AccountInfo, subscription_name: str):
+        if STORAGE_MANAGER.delete_subscription(user_info.username, subscription_name):
+            return "the subscription {} deleted successfully".format(subscription_name)
 
-    def list_subscription(self):
-        pass
+    @staticmethod
+    def subscription_list(user_info: AccountInfo):
+        if user_info.account_type == AccountType.YELLOW:
+            rules = ACCOUNT_RULES[user_info.account_type]
+            return rules.subscription_list(user_info)  # TODO implement
+        return STORAGE_MANAGER.show_all_subscriptions()
 
     @classmethod
     def register_user(cls, username: str) -> AccountInfo:

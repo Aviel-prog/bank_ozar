@@ -1,6 +1,7 @@
 from enum import Enum
 
-DB_PATH = "db.sqlite3"
+DB_ACCOUNTS_PATH = "db.accounts"
+DB_SUBSCRIPTION_PATH = "db.subscription"
 
 ACTION_OPTIONS = (
     "\n"
