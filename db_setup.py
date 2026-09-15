@@ -1,9 +1,9 @@
 import sqlite3
-
 from constants import DB_PATH
 
 
 def init_database(db_name: str = DB_PATH):
+    """Initializes schema and default records if table does not exist."""
     with sqlite3.connect(db_name) as conn:
         cursor = conn.cursor()
 
@@ -16,16 +16,18 @@ def init_database(db_name: str = DB_PATH):
             );
         """)
 
-        cursor.executemany("""
-            INSERT OR IGNORE INTO accounts (username, balance, account_type, locked)
-            VALUES (?, ?, ?, ?);
-        """, [
-            ("t_osherzi", 1500, 1, False),
-            ("t_shimonv", 5000, 2, False),
-            ("t_idome", -100, 3, True),
-            ("t_raz_ba", 10000, 4, False),
-            ("t_noabir", 0, 1, 1)
-        ])
+        cursor.execute("SELECT COUNT(*) FROM accounts")
+        if cursor.fetchone()[0] == 0:
+            cursor.executemany("""
+                INSERT INTO accounts (username, balance, account_type, locked)
+                VALUES (?, ?, ?, ?);
+            """, [
+                ("t_osherzi", 1500, 1, 0),
+                ("t_shimonv", 5000, 2, 0),
+                ("t_idome", -100, 3, 1),
+                ("t_raz_ba", 10000, 4, 0),
+                ("t_noabir", 0, 1, 1)
+            ])
 
         conn.commit()
-        print(f"Database successfully created at '{db_name}'!")
+        print(f"Database successfully created/connected at '{db_name}'!")
