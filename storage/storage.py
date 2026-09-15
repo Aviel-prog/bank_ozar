@@ -79,15 +79,13 @@ class StorageManager:
         with sqlite3.connect(self.db_path_subscription) as conn:
             cursor = conn.cursor()
             cursor.execute('''
-                DELETE FROM subscription
+                DELETE FROM subscriptions
                 WHERE username = ? AND name = ?
             ''', (username, subscription_name))
             conn.commit()
 
             if cursor.rowcount > 0:  # TODO understate it
-                print(f"Subscription '{subscription_name}' deleted successfully for {username}.")
-            else:
-                print(f"No subscription found matching '{subscription_name}' for {username}.")
+                return True
 
     def show_all_subscriptions(self, username: str):
         """Fetches and displays all subscriptions belonging to a user."""

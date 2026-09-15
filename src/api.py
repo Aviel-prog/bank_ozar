@@ -44,14 +44,13 @@ def api():
                     print("date is not valid")
                     break
                 amount = input("Enter how much: ")
-                print(Logics.add_subscription(user_info.username, subscription_name, date, amount))
+                print(Logics.add_subscription(user_info, subscription_name, date, int(amount)))
             case 5:
                 subscription_name = input("Enter subscription name: ")
                 print(Logics.del_subscription(user_info, subscription_name))
             case 6:
                 if not Logics.subscription_list(user_info):
                     continue
-
             case 7:
                 deleted, message = Logics.del_account(user_info)
                 print(message)

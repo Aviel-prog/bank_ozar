@@ -51,16 +51,17 @@ class Logics:
 
         rules = ACCOUNT_RULES[user_info.account_type]
         return rules.get_money(user_info, amount)
-
-    def add_subscription(self, user_info: AccountInfo, subscription_name: str, date: str, amount: int):
+    @staticmethod
+    def add_subscription(user_info: AccountInfo, subscription_name: str, date: str, amount: int):
         if user_info.locked:
             return "locked"
         return STORAGE_MANAGER.add_subscription(user_info.username, subscription_name, date, amount)
 
     @staticmethod
     def del_subscription(user_info: AccountInfo, subscription_name: str):
-        if STORAGE_MANAGER.delete_subscription(user_info.username, subscription_name):
-            return "the subscription {} deleted successfully".format(subscription_name)
+        if not STORAGE_MANAGER.delete_subscription(user_info.username, subscription_name):
+            return "No subscription found matching {}.".format(subscription_name)
+        return "the subscription {} deleted successfully".format(subscription_name)
 
     @staticmethod
     def subscription_list(user_info: AccountInfo):
