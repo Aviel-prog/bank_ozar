@@ -4,9 +4,9 @@ from logics.logics import Logics
 from src.utils import is_valid_date
 
 
-def api():
+def api(logics: Logics):
     user_name = input("input your username: ")
-    user_info = Logics.connect_user(user_name)
+    user_info = logics.connect_user(user_name)
 
     if user_info is None:
         print("could not create or find a user, exiting")
@@ -22,13 +22,13 @@ def api():
         try:
             match client_choice:
                 case 1:
-                    print(Logics.get_balance(user_info))
+                    print(logics.get_balance(user_info))
                 case 2:
                     amount = input("how much money to add: ")
-                    print(Logics.add_money(user_info, amount))
+                    print(logics.add_money(user_info, amount))
                 case 3:
                     amount = input("how much money to get: ")
-                    print(Logics.get_money(user_info, amount))
+                    print(logics.get_money(user_info, amount))
                 case 4:
                     subscription_name = input("Enter subscription name: ")
                     date = input("Enter date: ")
@@ -36,17 +36,17 @@ def api():
                         print("date is not valid")
                         continue
                     amount = input("Enter how much: ")
-                    print(Logics.add_subscription(user_info, subscription_name, date, amount))
+                    print(logics.add_subscription(user_info, subscription_name, date, amount))
                 case 5:
                     subscription_name = input("Enter subscription name: ")
-                    print(Logics.del_subscription(user_info, subscription_name))
+                    print(logics.del_subscription(user_info, subscription_name))
                 case 6:
-                    if not Logics.subscription_list(user_info):
+                    if not logics.subscription_list(user_info):
                         continue
                 case 7:
                     print("implement")
                 case 8:
-                    deleted, message = Logics.del_account(user_info)
+                    deleted, message = logics.del_account(user_info)
                     print(message)
                     if deleted:
                         break
