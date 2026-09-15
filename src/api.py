@@ -37,12 +37,17 @@ def api():
                     continue
                 print(Logics.get_money(user_info, amount_input))
             case 4:
+                # name - user
+                # date - user
+                # check the date - pydntic
+                # insert to the sub db - create sub db
                 print("add subscription - not implemented yet")
             case 5:
                 subscription_name = input("Enter subscription name: ")
                 Logics.delete_subscription(user_info, subscription_name)
                 print("delete subscription - not implemented yet")
             case 6:
+                
                 print("list subscriptions - not implemented yet")
             case 7:
                 deleted, message = Logics.del_account(user_info)
