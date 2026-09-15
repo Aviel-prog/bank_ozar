@@ -1,8 +1,8 @@
 import sqlite3
-from constants import DB_PATH
+from constants import DB_ACCOUNTS_PATH
 
 
-def init_database(db_name: str = DB_PATH):
+def init_accounts_database(db_name: str = DB_ACCOUNTS_PATH):
     """Initializes schema and default records if table does not exist."""
     with sqlite3.connect(db_name) as conn:
         cursor = conn.cursor()
@@ -30,4 +30,4 @@ def init_database(db_name: str = DB_PATH):
             ])
 
         conn.commit()
-        print(f"Database successfully created/connected at '{db_name}'!")
+        print(f"accounts Database successfully created/connected at '{db_name}'!")
