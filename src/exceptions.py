@@ -38,14 +38,6 @@ class AccountAlreadyExistsError(RegistrationError):
     """
 
 
-class InsufficientFundsError(BankAppError):
-    """Raised when an operation exceeds account overdraft boundaries."""
-
-
-class LimitExceededError(BankAppError):
-    """Raised when a single or daily transaction threshold is breached."""
-
-
 class DatabaseError(BankAppError):
     """Raised when an unexpected SQLite error occurs."""
 
