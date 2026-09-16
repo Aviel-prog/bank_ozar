@@ -7,6 +7,7 @@ from src.exceptions import (
     AccountAlreadyExistsError,
     EntityNotFoundError,
     InvalidAmountError,
+    InvalidDateError,
     NoQualifyingAccountTypeError,
     PersonNotFoundError,
 )
@@ -17,6 +18,7 @@ from src.logics.red_rules import RedAccountRules
 from src.logics.yellow_rules import YellowAccountRules
 from src.models import AccountInfo, AccountType
 from src.storage.storage import STORAGE_MANAGER
+from src.utils import is_valid_date
 from dateutil.relativedelta import relativedelta
 
 logger = logging.getLogger(__name__)
@@ -44,6 +46,19 @@ class Logics:
         if value <= 0:
             raise InvalidAmountError("amount must be greater than zero")
         return value
+
+    @staticmethod
+    def _validate_date(date: str) -> str:
+        """Returns the date unchanged if it is a real one, or raises.
+
+        Sits beside _validate_amount so a subscription is checked in the one
+        place that creates it, whichever caller asked for it.
+        """
+        if not is_valid_date(date):
+            raise InvalidDateError(
+                f"'{date}' is not a valid date, expected {SUBSCRIPTION_DATE_FORMAT}"
+            )
+        return date
 
     @classmethod
     def connect_user(cls, username: str) -> AccountInfo:
@@ -84,7 +99,7 @@ class Logics:
         if user_info.locked:
             return "locked"
 
-        amount = cls._validate_amount(amount)
+        date = cls._validate_date(date)
         added = STORAGE_MANAGER.add_subscription(
             user_info.username, subscription_name, date, amount
         )
@@ -155,14 +170,23 @@ class Logics:
 
     @classmethod
     def del_account(cls, user_info: AccountInfo) -> tuple[bool, str]:
-        """Deletes account using the provided user AccountInfo model.
+        """Closes an account and removes everything attached to it.
+
+        The subscriptions go first. They live in a separate database, so no
+        single transaction covers both, and the order decides what a failure
+        leaves behind: stopping before the account is touched leaves the
+        customer exactly as they were, whereas closing the account first and
+        then failing would leave subscriptions with no owner - which the next
+        registration of that username would inherit.
 
         Returns a (success, message) tuple so callers can branch on the
         boolean instead of inspecting the wording of the message.
         """
+        removed = STORAGE_MANAGER.delete_subscriptions(user_info.username)
         deleted = STORAGE_MANAGER.delete_account(user_info.username)
-        logger.info("account deletion for %s: %s", user_info.username,
-                    "done" if deleted else "no such account")
+        logger.info("account deletion for %s: %s, %d subscription(s) removed",
+                    user_info.username, "done" if deleted else "no such account",
+                    removed)
         if deleted:
             return True, f"Account '{user_info.username}' deleted successfully."
         return False, f"Account '{user_info.username}' not found."

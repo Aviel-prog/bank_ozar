@@ -1,15 +1,21 @@
 import logging
 from datetime import datetime
 
+from src.config import SUBSCRIPTION_DATE_FORMAT
+
 logger = logging.getLogger(__name__)
 
-def is_valid_date(date_str: str) -> bool:
+def is_valid_date(date_str: str, date_format: str = SUBSCRIPTION_DATE_FORMAT) -> bool:
+    """Whether the string is a real date written in the expected format.
+
+    The format defaults to the one subscriptions are stored in, so callers do
+    not each repeat the pattern and drift apart from the database.
+    """
     try:
-        # Tries to parse the string matching the DD-MM-YYYY format exactly
-        datetime.strptime(date_str, "%d-%m-%Y")
+        datetime.strptime(date_str, date_format)
         return True
-    except ValueError:
-        # Triggers if the format is wrong or the date does not exist
+    except (ValueError, TypeError):
+        # Triggers if the format is wrong, the date does not exist, or it is None
         return False
 
 

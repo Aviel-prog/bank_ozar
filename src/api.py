@@ -2,7 +2,6 @@ from src.exceptions import BankAppError
 from src.logics.logics import Logics
 from src.menu import MENU_OPTIONS, render_menu
 from src.models import AccountInfo
-from src.utils import is_valid_date
 
 
 def _balance(user_info: AccountInfo) -> bool:
@@ -25,9 +24,6 @@ def _withdraw(user_info: AccountInfo) -> bool:
 def _add_subscription(user_info: AccountInfo) -> bool:
     subscription_name = input("Enter subscription name: ")
     date = input("Enter date: ")
-    if not is_valid_date(date):
-        print("date is not valid")
-        return True
     amount = input("Enter how much: ")
     print(Logics.add_subscription(user_info, subscription_name, date, amount))
     return True

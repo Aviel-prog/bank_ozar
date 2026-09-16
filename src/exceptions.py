@@ -52,3 +52,7 @@ class DatabaseError(BankAppError):
 
 class InvalidAmountError(BankAppError):
     """Raised when a transaction amount is not a positive whole number."""
+
+
+class InvalidDateError(BankAppError):
+    """Raised when a date is not a real date in the expected format."""

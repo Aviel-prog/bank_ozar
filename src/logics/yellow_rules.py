@@ -38,12 +38,13 @@ class YellowAccountRules(AccountRules):
         return "X in your bank"
 
     @staticmethod
-    def get_money(user_info, amount: int) -> str:
+    def get_money(user_info: AccountInfo, amount: int) -> str:
         result = AccountRules.get_money(user_info, amount)
         if user_info.balance < 0:
             STORAGE_MANAGER.update_lock(user_info.username, True)
             logger.warning("locked account %s after balance dropped to %s",
                            user_info.username, user_info.balance)
+            user_info.locked = True
             return "you have less than 0 in your account now"
         return result
 

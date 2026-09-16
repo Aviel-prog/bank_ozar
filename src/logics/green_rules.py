@@ -25,4 +25,4 @@ class GreenAccountRules(AccountRules):
     def balance_next_pay_day(amount: int) -> str:
         if amount % 2 != 0:
             amount -= 100
-        return AccountRules.balance_next_pay_day(amount)
+        

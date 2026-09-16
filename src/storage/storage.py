@@ -125,6 +125,18 @@ class StorageManager:
             ''', (username, subscription_name))
             return cursor.rowcount > 0
 
+    def delete_subscriptions(self, username: str) -> int:
+        """Removes every subscription belonging to a user, returning how many.
+
+        A username can be registered again after an account closes, so rows
+        left behind here would quietly become the next customer's bills.
+        """
+        with self._connect(self.db_path_subscription) as conn:
+            cursor = conn.execute(
+                'DELETE FROM subscriptions WHERE username = ?', (username,)
+            )
+            return cursor.rowcount
+
     def get_subscriptions(self, username: str) -> list:
         """Returns every subscription belonging to a user.
 
