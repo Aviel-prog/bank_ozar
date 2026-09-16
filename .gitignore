@@ -5,6 +5,7 @@ __pycache__/
 logs/
 # C extensions
 *.so
+db.sqlite3
 .idea
 # Distribution / packaging
 .Python
@@ -216,3 +217,13 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Local databases - data, not source. Created on first run by src/storage/.
+db.accounts
+db.subscription
+
+# macOS
+.DS_Store
+
+# Logs
+*.log

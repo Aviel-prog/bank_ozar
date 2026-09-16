@@ -1,0 +1,101 @@
+from src.exceptions import BankAppError
+from src.logics.logics import Logics
+from src.menu import MENU_OPTIONS, render_menu
+from src.models import AccountInfo
+
+
+def _balance(user_info: AccountInfo) -> bool:
+    print(Logics.get_balance(user_info))
+    return True
+
+
+def _deposit(user_info: AccountInfo) -> bool:
+    amount = input("how much money to add: ")
+    print(Logics.add_money(user_info, amount))
+    return True
+
+
+def _withdraw(user_info: AccountInfo) -> bool:
+    amount = input("how much money to get: ")
+    print(Logics.get_money(user_info, amount))
+    return True
+
+
+def _add_subscription(user_info: AccountInfo) -> bool:
+    subscription_name = input("Enter subscription name: ")
+    date = input("Enter date: ")
+    amount = input("Enter how much: ")
+    print(Logics.add_subscription(user_info, subscription_name, date, amount))
+    return True
+
+
+def _remove_subscription(user_info: AccountInfo) -> bool:
+    subscription_name = input("Enter subscription name: ")
+    print(Logics.del_subscription(user_info, subscription_name))
+    return True
+
+
+def _list_subscriptions(user_info: AccountInfo) -> bool:
+    subscriptions = Logics.subscription_list(user_info)
+    if not subscriptions:
+        print(f"No active subscriptions found for user: {user_info.username}")
+        return True
+
+    print(f"--- Subscriptions for {user_info.username} ---")
+    for name, end_date, amount in subscriptions:
+        print(f"Name: {name} | Ends: {end_date} | Amount: ${amount:.2f}")
+    return True
+
+
+def _balance_next_day(user_info: AccountInfo) -> bool:
+    print(Logics.balance_next_day(user_info))
+    return True
+
+
+def _purge(user_info: AccountInfo) -> bool:
+    deleted, message = Logics.del_account(user_info)
+    print(message)
+    return not deleted
+
+
+def _exit(user_info: AccountInfo) -> bool:
+    print("Exit the Bank")
+    return False
+
+
+# Keyed by the same choices as MENU_OPTIONS - a handler returns False to end
+# the session. Both dicts are checked against each other at import time.
+HANDLERS = {
+    "1": _balance,
+    "2": _deposit,
+    "3": _withdraw,
+    "4": _add_subscription,
+    "5": _remove_subscription,
+    "6": _list_subscriptions,
+    "7": _balance_next_day,
+    "8": _purge,
+    "9": _exit,
+}
+
+assert HANDLERS.keys() == MENU_OPTIONS.keys()
+
+def api():
+    user_name = input("input your username: ")
+    try:
+        user_info = Logics.connect_user(user_name)
+    except BankAppError as error:
+        print(error)
+        return
+
+    while True:
+        choice = input(render_menu()).strip()
+        handler = HANDLERS.get(choice)
+        if handler is None:
+            print("invalid Input")
+            continue
+
+        try:
+            if not handler(user_info):
+                break
+        except BankAppError as error:
+            print(error)
