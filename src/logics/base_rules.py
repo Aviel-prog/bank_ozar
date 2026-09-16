@@ -56,5 +56,15 @@ class AccountRules:
         return "got the money successfully"
 
     @staticmethod
+    def get_subscriptions(user_info) -> list:
+        """The subscriptions this customer is allowed to see.
+
+        Rows of (name, end_date, amount) are handed back as they come out of
+        storage - formatting them is the caller's job. A colour that keeps
+        something from its customers overrides this and drops those rows.
+        """
+        return STORAGE_MANAGER.get_subscriptions(user_info.username)
+
+    @staticmethod
     def balance_next_pay_day(amount: int) -> str:
         return "next pay day you will have X"

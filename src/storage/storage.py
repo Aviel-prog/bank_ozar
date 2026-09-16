@@ -150,8 +150,8 @@ class StorageManager:
             ''', (username,))
             rows = cursor.fetchall()
 
-        logger.debug("found %d subscription(s) for %s", len(rows), username)
         return rows
+        
 
 
 STORAGE_MANAGER = StorageManager()

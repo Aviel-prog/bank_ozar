@@ -196,6 +196,26 @@ class SubscriptionTests(StorageTestCase):
                          [("Gym", "01-06-2028", 50)])
 
 
+class YellowSubscriptionListTests(StorageTestCase):
+    """Yellow lists what the customer signed up for, not the bank's charge."""
+
+    def setUp(self):
+        super().setUp()
+        self.account = self.given_account("t_yellow", 500, AccountType.YELLOW)
+        self.storage.subscriptions = [
+            ("t_yellow", "Yellow", "01-01-9999", -800),
+            ("t_yellow", "Gym", "01-06-2028", 50),
+        ]
+
+    def test_the_yellow_charge_is_left_out(self):
+        self.assertEqual(Logics.subscription_list(self.account),
+                         [("Gym", "01-06-2028", 50)])
+
+    def test_an_account_with_only_the_yellow_charge_lists_nothing(self):
+        self.storage.subscriptions = [("t_yellow", "Yellow", "01-01-9999", -800)]
+        self.assertEqual(Logics.subscription_list(self.account), [])
+
+
 class DeleteAccountTests(StorageTestCase):
     def setUp(self):
         super().setUp()

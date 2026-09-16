@@ -116,10 +116,8 @@ class Logics:
 
     @classmethod
     def subscription_list(cls, user_info: AccountInfo):
-        if user_info.account_type == AccountType.YELLOW:
-            rules = ACCOUNT_RULES[user_info.account_type]
-            return rules.subscription_list(user_info)  # TODO implement
-        return STORAGE_MANAGER.get_subscriptions(user_info.username)
+        rules = ACCOUNT_RULES[user_info.account_type]
+        return rules.get_subscriptions(user_info)
 
     @classmethod
     def register_user(cls, username: str) -> AccountInfo:
@@ -209,10 +207,9 @@ class Logics:
         end_date = datetime.datetime.strptime(
             end_date_raw, SUBSCRIPTION_DATE_FORMAT
         ).date()
-
+        amount = user_info.balance
         if end_date <= datetime.date.today() + relativedelta(months=1):
-            return user_info.balance
-
+            amount = monthly_amount + user_info.balance
         rules = ACCOUNT_RULES[user_info.account_type]
-        return rules.balance_next_day(monthly_amount + user_info.balance)
+        return rules.balance_next_day(amount)
         
