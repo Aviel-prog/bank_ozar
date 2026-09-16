@@ -48,7 +48,7 @@ def _list_subscriptions(user_info: AccountInfo) -> bool:
 
 
 def _balance_next_day(user_info: AccountInfo) -> bool:
-    print("implement")
+    print(Logics.balance_next_day(user_info))
     return True
 
 
@@ -77,10 +77,7 @@ HANDLERS = {
     "9": _exit,
 }
 
-assert HANDLERS.keys() == MENU_OPTIONS.keys(), (
-    "every menu option needs a route, and every route needs a menu option"
-)
-
+assert HANDLERS.keys() == MENU_OPTIONS.keys()
 
 def api():
     user_name = input("input your username: ")

@@ -211,5 +211,5 @@ class Logics:
         if end_date <= datetime.date.today() + relativedelta(months=1):
             amount = monthly_amount + user_info.balance
         rules = ACCOUNT_RULES[user_info.account_type]
-        return rules.balance_next_day(amount)
+        return rules.balance_next_pay_day(amount)
         

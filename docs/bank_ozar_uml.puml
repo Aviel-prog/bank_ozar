@@ -1,0 +1,134 @@
+@startuml bank_ozar
+hide empty members
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam linetype ortho
+
+package "models" {
+  enum AccountType {
+    YELLOW = 1
+    RED = 2
+    BLUE = 3
+    GREEN = 4
+  }
+
+  class AccountInfo {
+    +username: str
+    +balance: int
+    +account_type: AccountType
+    +locked: bool
+    +__repr__(): str
+  }
+
+  AccountInfo --> AccountType
+}
+
+package "exceptions" {
+  class BankAppError
+  class EntityNotFoundError
+  class RegistrationError
+  class PersonNotFoundError
+  class NoQualifyingAccountTypeError
+  class AccountAlreadyExistsError
+  class InsufficientFundsError
+  class LimitExceededError
+  class DatabaseError
+  class InvalidAmountError
+  class InvalidDateError
+
+  BankAppError <|-- EntityNotFoundError
+  BankAppError <|-- RegistrationError
+  BankAppError <|-- InsufficientFundsError
+  BankAppError <|-- LimitExceededError
+  BankAppError <|-- DatabaseError
+  BankAppError <|-- InvalidAmountError
+  BankAppError <|-- InvalidDateError
+  RegistrationError <|-- PersonNotFoundError
+  RegistrationError <|-- NoQualifyingAccountTypeError
+  RegistrationError <|-- AccountAlreadyExistsError
+}
+
+package "logics" {
+  abstract class AccountRules {
+    +{static} INITIAL_BALANCE: int = 0
+    +{static} qualifies(person: dict): bool
+    +{static} on_register(account, person: dict): None
+    +{static} get_balance(user_info): str
+    +{static} add_money(user_info, amount: int): str
+    +{static} get_money(user_info, amount: int): str
+    +{static} get_subscriptions(user_info): list
+    +{static} balance_next_pay_day(amount: int): str
+  }
+
+  class BlueAccountRules {
+    +{static} INITIAL_BALANCE = 1700
+    +{static} qualifies(person): bool
+    +{static} get_money(user_info, amount): str
+  }
+  class RedAccountRules {
+    +{static} INITIAL_BALANCE = 30000
+    +{static} qualifies(person): bool
+    +{static} on_register(account, person): None
+    +{static} add_money(user_info, amount): str
+  }
+  class GreenAccountRules {
+    +{static} qualifies(person): bool
+    +{static} get_balance(user_info): str
+    +{static} balance_next_pay_day(amount): str
+  }
+  class YellowAccountRules {
+    +{static} qualifies(person): bool
+    +{static} on_register(account, person): None
+    +{static} get_balance(user_info): str
+    +{static} get_money(user_info, amount): str
+    +{static} get_subscriptions(user_info): list
+    +{static} balance_next_pay_day(amount): str
+  }
+
+  AccountRules <|-- BlueAccountRules
+  AccountRules <|-- RedAccountRules
+  AccountRules <|-- GreenAccountRules
+  AccountRules <|-- YellowAccountRules
+
+  class Logics {
+    +{static} connect_user(username: str): AccountInfo
+    +{static} get_balance(user_info): str
+    +{static} add_money(user_info, amount): str
+    +{static} get_money(user_info, amount): str
+    +{static} add_subscription(user_info, name, date, amount): str
+    +{static} del_subscription(user_info, name): str
+    +{static} subscription_list(user_info): list
+    +{static} register_user(username: str): AccountInfo
+    +{static} del_account(user_info): tuple
+    +{static} balance_next_day(user_info): str
+    -{static} _validate_amount(amount): int
+    -{static} _validate_date(date): str
+  }
+}
+
+package "storage" {
+  class StorageManager {
+    -db_account_path: str
+    -db_path_subscription: str
+    +is_user_exist(username): bool
+    +get_user_information(username): AccountInfo
+    +add_account(account): bool
+    +update_balance(username, balance): None
+    +update_lock(username, status): None
+    +delete_account(username): bool
+    +add_subscription(username, name, end_date, amount): bool
+    +delete_subscription(username, name): bool
+    +delete_subscriptions(username): int
+    +get_subscriptions(username): list
+    -{static} _connect(db_path)
+  }
+}
+
+Logics ..> AccountRules : dispatches via\nACCOUNT_RULES[account_type]
+Logics ..> AccountInfo : creates / operates on
+Logics ..> StorageManager : STORAGE_MANAGER
+Logics ..> RegistrationError : raises
+AccountRules ..> StorageManager : STORAGE_MANAGER
+AccountRules ..> AccountInfo : mutates
+
+@enduml
