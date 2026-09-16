@@ -100,6 +100,7 @@ class Logics:
             return "locked"
 
         date = cls._validate_date(date)
+        amount = cls._validate_amount(amount)
         added = STORAGE_MANAGER.add_subscription(
             user_info.username, subscription_name, date, amount
         )
